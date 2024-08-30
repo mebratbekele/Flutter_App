@@ -4,80 +4,51 @@ import 'package:flutter/material.dart';
 class NavBar extends StatelessWidget {
   const NavBar({Key? key}) : super(key: key);
 
+  // Function to handle logout
+  void _logout(BuildContext context) {
+    FirebaseAuth.instance.signOut();
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     // Retrieve the current user's email from Firebase Authentication
-    String? username;
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user != null) {
-      username = user.email;
-    }
-    if (username == null || username.isEmpty) {
-      username = 'Guest@gmail.com';
-    }
-
-    // Function to handle logout
-    void logout() {
-      FirebaseAuth.instance.signOut();
-      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-    }
-
-    // Function to handle navigation to add user page
-    void addUser() {
-      Navigator.pushNamedAndRemoveUntil(context, '/addUsers', (route) => false);
-    }
-
-    // Function to handle navigation to view accounts page
-    void viewAccounts() {
-      Navigator.pushNamedAndRemoveUntil(
-          context, '/viewAccounts', (route) => false);
-    }
-
-    // Function to handle navigation to employee registration page
-    void employeeRegistration() {
-      Navigator.pushNamedAndRemoveUntil(
-          context, '/registerEmployee', (route) => false);
-    }
-
-    // Function to handle navigation to forgot password page
-    void viewUser() {
-      Navigator.pushNamedAndRemoveUntil(
-          context, '/forgotPassword', (route) => false);
-    }
-
-    // Function to handle navigation to registration page
-    void register() {
-      Navigator.pushNamedAndRemoveUntil(context, '/register', (route) => false);
-    }
+    final User? user = FirebaseAuth.instance.currentUser;
+    final String username = user?.email ?? 'Guest@gmail.com';
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(248, 14, 212, 212), // Background color
+      backgroundColor: Colors.teal,
       appBar: AppBar(
         title: Text(
-          'ABCD PLC System',
-          style: TextStyle(
-            color: Color.fromARGB(255, 28, 4, 248), // Custom orange color
-            fontSize: 18, // Optional: set font size
-            fontWeight: FontWeight.bold, // Optional: set font weight
+          'BROKER APPLICATION',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+            shadows: [
+              Shadow(
+                blurRadius: 5.0,
+                color: Colors.black,
+                offset: Offset(2.0, 2.0),
+              ),
+            ],
+            fontFamily: 'Roboto',
           ),
         ),
-        backgroundColor: Color.fromARGB(248, 185, 238, 242),
+        backgroundColor: Colors.teal,
+        elevation: 0,
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {
-              switch (value) {
-                case 'logout':
-                  logout();
-                  break;
-                case 'change_password':
-                  // Add your change password functionality here
-                  break;
+              if (value == 'logout') {
+                _logout(context);
               }
+              // Add functionality for 'change_password' here if needed
             },
             itemBuilder: (BuildContext context) {
               return [
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'logout',
                   child: Row(
                     children: [
@@ -87,7 +58,7 @@ class NavBar extends StatelessWidget {
                     ],
                   ),
                 ),
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'change_password',
                   child: Row(
                     children: [
@@ -104,197 +75,230 @@ class NavBar extends StatelessWidget {
       ),
       drawer: Drawer(
         child: Container(
-          color: Colors.blue[900],
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.orange, Colors.teal],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              UserAccountsDrawerHeader(
-                accountName: Text(
-                  'Welcome',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                accountEmail: Text(
-                  username,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                currentAccountPicture: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/user.jfif',
-                      fit: BoxFit.cover,
-                      width: 90,
-                      height: 90,
-                    ),
-                  ),
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.blue[900],
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage(
-                      'https://oflutter.com/wp-content/uploads/2021/02/profile-bg3.jpg',
-                    ),
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: Icon(Icons.favorite, color: Colors.white),
-                title: Text('Employee', style: TextStyle(color: Colors.white)),
-                onTap: employeeRegistration,
-              ),
-              ListTile(
-                leading: Icon(Icons.person, color: Colors.white),
-                title: Text('Add User', style: TextStyle(color: Colors.white)),
-                onTap: addUser,
-              ),
-              ListTile(
-                leading: Icon(Icons.share, color: Colors.white),
-                title: Text('Image', style: TextStyle(color: Colors.white)),
-                onTap: () => null,
-              ),
-              ListTile(
-                leading: Icon(Icons.account_circle, color: Colors.white),
-                title: Text('Account', style: TextStyle(color: Colors.white)),
-                onTap: viewAccounts,
-                trailing: ClipOval(
-                  child: Container(
-                    color: Colors.red,
-                    width: 20,
-                    height: 20,
-                    child: Center(
-                      child: Text(
-                        '8',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Divider(color: Colors.white),
-              ListTile(
-                leading: Icon(Icons.settings, color: Colors.white),
-                title: Text('Roles', style: TextStyle(color: Colors.white)),
-                onTap: viewUser,
-              ),
-              ListTile(
-                leading: Icon(Icons.description, color: Colors.white),
-                title: Text('User Registration',
-                    style: TextStyle(color: Colors.white)),
-                onTap: register,
-              ),
-              Divider(color: Colors.white),
-              ListTile(
-                title: Text('Logout', style: TextStyle(color: Colors.white)),
-                leading: Icon(Icons.exit_to_app, color: Colors.white),
-                onTap: () {
-                  FirebaseAuth.instance.signOut();
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, '/login', (route) => false);
-                },
-              ),
+              _buildDrawerHeader(username),
+              _buildDrawerItem(
+                  context, Icons.favorite, 'Employee', '/viewEmployee'),
+              _buildDrawerItem(
+                  context, Icons.person, 'View Jobs', '/listOfJobsBasedOnUser'),
+              _buildDrawerItem(
+                  context, Icons.share, 'Image', null), // No action
+              _buildDrawerItem(
+                  context, Icons.account_circle, 'Account', '/viewAccounts'),
+              const Divider(color: Colors.white),
+              _buildDrawerItem(
+                  context, Icons.settings, 'Post Jobs', '/postJob'),
+              _buildDrawerItem(
+                  context, Icons.description, 'User Registration', '/register'),
+              const Divider(color: Colors.white),
+              _buildDrawerItem(context, Icons.exit_to_app, 'Logout', null,
+                  logout: true),
             ],
           ),
         ),
       ),
- body: Center(
-        child: Column(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.orange, Colors.transparent],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+              elevation: 10,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.blue, Colors.orange],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildStyledButton(
+                      context,
+                      onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                          context, '/employerList', (route) => false),
+                      icon: Icons.manage_accounts_sharp,
+                      gradientColors: [Colors.blue, Colors.deepOrange],
+                      label: 'Employers',
+                    ),
+                    const SizedBox(height: 15),
+                    _buildStyledButton(
+                      context,
+                      onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                          context, '/viewEmployeeList', (route) => false),
+                      icon: Icons.manage_accounts_rounded,
+                      gradientColors: [Colors.blue, Colors.orange],
+                      label: 'Job Seekers',
+                    ),
+                    const SizedBox(height: 15),
+                    _buildStyledButton(
+                      context,
+                      onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                          context, '/viewEmployedList', (route) => false),
+                      icon: Icons.manage_accounts,
+                      gradientColors: [Colors.orange, Colors.indigo],
+                      label: 'Employee',
+                    ),
+                    const SizedBox(height: 15),
+                    _buildStyledButton(
+                      context,
+                      onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                          context, '/listOfJobsBasedOnUser', (route) => false),
+                      icon: Icons.manage_history_rounded,
+                      gradientColors: [Colors.deepOrangeAccent, Colors.blue],
+                      label: 'Jobs',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawerHeader(String username) {
+    return UserAccountsDrawerHeader(
+      accountName: const Text(
+        'Welcome',
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      accountEmail: Text(
+        username,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      currentAccountPicture: CircleAvatar(
+        backgroundColor: Colors.white,
+        child: ClipOval(
+          child: Image.asset(
+            'assets/user.jfif',
+            fit: BoxFit.cover,
+            width: 90,
+            height: 90,
+          ),
+        ),
+      ),
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        image: DecorationImage(
+          fit: BoxFit.cover,
+          image: NetworkImage(
+              'https://oflutter.com/wp-content/uploads/2021/02/profile-bg3.jpg'),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem(
+      BuildContext context, IconData icon, String title, String? route,
+      {bool logout = false}) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(title,
+          style: const TextStyle(
+              color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+      onTap: () {
+        if (logout) {
+          _logout(context);
+        } else if (route != null) {
+          Navigator.pushNamedAndRemoveUntil(context, route, (route) => false);
+        }
+      },
+      trailing: logout
+          ? null
+          : ClipOval(
+              child: Container(
+                color: Colors.grey,
+                width: 20,
+                height: 20,
+                child: Center(
+                  child: Text(
+                    '',
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ),
+              ),
+            ),
+    );
+  }
+
+  Widget _buildStyledButton(
+    BuildContext context, {
+    required VoidCallback onPressed,
+    required IconData icon,
+    required List<Color> gradientColors,
+    required String label,
+  }) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        elevation: 5,
+        backgroundColor: Colors.white30, // Transparent to apply gradient
+      ).copyWith(
+        shadowColor: MaterialStateProperty.all(Colors.black.withOpacity(0.3)),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Add Button with Icon and Text
-            ElevatedButton.icon(
-              onPressed: () {
-                // Handle add button press
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.orange, // Text color
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(50), // Circular shape
-                ),
-                minimumSize: Size(150, 150), // Size of the button
-              ),
-              icon: Icon(Icons.add, size: 40), // Icon size
-              label: Text(
-                'Add Employee',
-                style: TextStyle(fontSize: 20),
-              ),
+            CircleAvatar(
+              backgroundColor: Colors.blue,
+              radius: 25,
+              child: Icon(icon, color: Colors.white),
             ),
-            SizedBox(height: 15), // Space between buttons
-            // View Button with Icon and Text
-            ElevatedButton.icon(
-              onPressed: () {
-                // Handle view button press
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text color
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(50), // Circular shape
-                ),
-                minimumSize: Size(150, 150), // Size of the button
-              ),
-              icon: Icon(Icons.remove_red_eye, size: 40), // Icon size
-              label: Text(
-                'View Employee',
-                style: TextStyle(fontSize: 20),
-              ),
-            ),
-            SizedBox(height: 15),
-            // Edit Button with Icon and Text
-            ElevatedButton.icon(
-              onPressed: () {
-                // Handle edit button press
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.green, // Text color
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(50), // Circular shape
-                ),
-                minimumSize: Size(150, 150), // Size of the button
-              ),
-              icon: Icon(Icons.edit, size: 40), // Icon size
-              label: Text(
-                'Edit Employee',
-                style: TextStyle(fontSize: 20),
-              ),
-            ),
-            SizedBox(height: 15),
-            // Delete Button with Icon and Text
-            ElevatedButton.icon(
-              onPressed: () {
-                // Handle delete button press
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.red, // Text color
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(50), // Circular shape
-                ),
-                minimumSize: Size(150, 150), // Size of the button
-              ),
-              icon: Icon(Icons.delete, size: 40), // Icon size
-              label: Text(
-                'Delete Employee',
-                style: TextStyle(fontSize: 20),
-              ),
+            const SizedBox(width: 15),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ],
         ),
       ),
-     );
+    );
   }
 }

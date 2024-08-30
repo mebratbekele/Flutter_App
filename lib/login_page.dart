@@ -90,10 +90,10 @@ class _LoginPageState extends State<LoginPage> {
         showErrorMessage(
             "You have attempted to login too many times\nPlease try again later");
       }
-       if (e.code == 'user-disabled') {
-    showErrorMessage(
-        "This account has been disabled\nPlease contact support for assistance");
-  }
+      if (e.code == 'user-disabled') {
+        showErrorMessage(
+            "This account has been disabled\nPlease contact support for assistance");
+      }
     }
   }
 
@@ -195,7 +195,6 @@ class _LoginPageState extends State<LoginPage> {
                     buttonName: "Sign in",
                     buttonColor: Colors.blue,
                     buttonText: '', // or any color you prefer
-
                   ),
                   const SizedBox(height: 30),
                   Row(
@@ -211,6 +210,31 @@ class _LoginPageState extends State<LoginPage> {
                         onTap: widget.showSignUpPage,
                         child: const Text(
                           'Sign Up now',
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 40),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'You want to find job? ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/listOfJobs', (route) => false);
+                        },
+                        child: const Text(
+                          'Please click here now',
                           style: TextStyle(
                             color: Colors.redAccent,
                             fontWeight: FontWeight.bold,
