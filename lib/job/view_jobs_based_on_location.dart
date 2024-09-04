@@ -171,29 +171,15 @@ class _JobListBasedOnLocationState extends State<JobListBasedOnLocation> {
           },
         ),
         actions: [
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 16.0),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
             child: ElevatedButton.icon(
-              icon: CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(
-                  Icons.add,
-                  color: Colors.blue, // Customize icon color here
-                ),
-              ),
-              label: Text(
-                'Post Job',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black, // Customize text color here
-                ),
-              ),
+              icon: Icon(Icons.add, color: Colors.white),
+              label: Text('Post Job', style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, // Customize background color here
+                backgroundColor: Colors.blue,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                      8.0), // Customize border radius here
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
                 padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
               ),
@@ -207,182 +193,181 @@ class _JobListBasedOnLocationState extends State<JobListBasedOnLocation> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                labelText: 'Search by Location',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  labelText: 'Search by Location',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.search),
+                ),
               ),
             ),
-          ),
-          _isLoading
-              ? Center(child: CircularProgressIndicator())
-              : _filteredJobs.isEmpty
-                  ? Center(child: Text('No jobs available'))
-                  : Expanded(
-                      child: ListView.separated(
-                        itemCount: _filteredJobs.length,
-                        separatorBuilder: (context, index) => Divider(
-                          color: const Color.fromARGB(255, 224, 224, 224),
-                        ),
-                        itemBuilder: (context, index) {
-                          final job = _filteredJobs[index];
-                          final jobId = job['id'] as String? ?? '';
-                          final salary = job['salary'] as num? ?? 0;
-                          final currency = job['currency'] ?? 'No currency';
+            Expanded(
+              child: _isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : _filteredJobs.isEmpty
+                      ? Center(child: Text('No jobs available'))
+                      : ListView.separated(
+                          itemCount: _filteredJobs.length,
+                          separatorBuilder: (context, index) => Divider(
+                            color: Colors.grey[300],
+                          ),
+                          itemBuilder: (context, index) {
+                            final job = _filteredJobs[index];
+                            final jobId = job['id'] as String? ?? '';
+                            final salary = job['salary'] as num? ?? 0;
+                            final currency = job['currency'] ?? 'No currency';
 
-                          // Create a NumberFormat instance for formatting the salary with commas
-                          final numberFormat = NumberFormat('#,##0', 'en_US');
-                          final formattedSalary = numberFormat.format(salary);
+                            // Create a NumberFormat instance for formatting the salary with commas
+                            final numberFormat = NumberFormat('#,##0', 'en_US');
+                            final formattedSalary = numberFormat.format(salary);
 
-                          // Determine the job status
-                          final status = (job['status'] ?? 0) == 1
-                              ? 'Completed'
-                              : 'Pending';
+                            // Determine the job status
+                            final status = (job['status'] ?? 0) == 1
+                                ? 'Completed'
+                                : 'Pending';
 
-                          return Card(
-                            elevation: 4,
-                            margin: EdgeInsets.all(8),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  CircleAvatar(
-                                    backgroundColor: Colors.blue,
-                                    child: Icon(
-                                      Icons.work,
-                                      color: Colors.white,
+                            return Card(
+                              elevation: 4,
+                              margin: EdgeInsets.symmetric(vertical: 8.0),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: Colors.blue,
+                                      child: Icon(
+                                        Icons.work,
+                                        color: Colors.white,
+                                      ),
+                                      radius: 30,
                                     ),
-                                    radius: 30,
-                                  ),
-                                  SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          job['name'] ?? 'No Job Name',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                        SizedBox(height: 8),
-                                        Text(
-                                          'Salary: $formattedSalary $currency',
-                                          style: TextStyle(fontSize: 16),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          'Location: ${job['location'] ?? 'No Location'}',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey[700]),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          'Gender: ${job['gender'] ?? 'No gender'}',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey[700]),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          'Required Number: ${job['numberRequired'] ?? 'No required'}',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey[700]),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          'Description: ${job['description'] ?? 'No Description'}',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey[700]),
-                                        ),
-                                        SizedBox(height: 8),
-                                        // Display the status
-                                        Text(
-                                          'Status: $status',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: status == 'Completed'
-                                                ? Colors.green
-                                                : Colors.orange,
-                                          ),
-                                        ),
-                                        SizedBox(height: 8),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                if (jobId.isNotEmpty) {
-                                                  _editJob(jobId);
-                                                }
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                foregroundColor: Colors.white,
-                                                backgroundColor: Colors
-                                                    .green, // Button color
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(Icons.edit,
-                                                      color: Colors
-                                                          .white), // Prefix icon
-                                                  SizedBox(width: 8),
-                                                  Text('Edit'),
-                                                ],
-                                              ),
+                                    SizedBox(width: 16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            job['name'] ?? 'No Job Name',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
                                             ),
-                                            SizedBox(width: 8),
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                if (jobId.isNotEmpty) {
-                                                  _showDeleteConfirmationDialog(
-                                                      jobId);
-                                                }
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                foregroundColor: Colors.white,
-                                                backgroundColor:
-                                                    Colors.red, // Button color
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(Icons.delete,
-                                                      color: Colors
-                                                          .white), // Prefix icon
-                                                  SizedBox(width: 8),
-                                                  Text('Delete'),
-                                                ],
-                                              ),
+                                          ),
+                                          SizedBox(height: 8),
+                                          Text(
+                                            'Salary: $formattedSalary $currency',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            'Location: ${job['location'] ?? 'No Location'}',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey[700]),
+                                          ),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            'Gender: ${job['gender'] ?? 'No gender'}',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey[700]),
+                                          ),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            'Required Number: ${job['numberRequired'] ?? 'No required'}',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey[700]),
+                                          ),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            'Description: ${job['description'] ?? 'No Description'}',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey[700]),
+                                          ),
+                                          SizedBox(height: 8),
+                                          // Display the status
+                                          Text(
+                                            'Status: $status',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: status == 'Completed'
+                                                  ? Colors.green
+                                                  : Colors.orange,
                                             ),
-                                          ],
-                                        ),
-                                      ],
+                                          ),
+                                          SizedBox(height: 8),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  if (jobId.isNotEmpty) {
+                                                    _editJob(jobId);
+                                                  }
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  foregroundColor: Colors.white,
+                                                  backgroundColor: Colors.green,
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Icon(Icons.edit),
+                                                    SizedBox(width: 8),
+                                                    Text('Edit'),
+                                                  ],
+                                                ),
+                                              ),
+                                              SizedBox(width: 8),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  if (jobId.isNotEmpty) {
+                                                    _showDeleteConfirmationDialog(
+                                                        jobId);
+                                                  }
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  foregroundColor: Colors.white,
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Icon(Icons.delete),
+                                                    SizedBox(width: 8),
+                                                    Text('Delete'),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-        ],
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
       ),
     );
   }

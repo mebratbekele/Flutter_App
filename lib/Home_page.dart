@@ -1,10 +1,49 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
-class NavBar extends StatelessWidget {
+class NavBar extends StatefulWidget {
   const NavBar({Key? key}) : super(key: key);
 
-  // Function to handle logout
+  @override
+  _NavBarState createState() => _NavBarState();
+}
+
+class _NavBarState extends State<NavBar> {
+  String _profilePictureUrl = '';
+  String _username = 'Guest@gmail.com';
+  String _fullName = '';
+  String _phone = '';
+  String _role = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserDetails();
+  }
+
+  Future<void> _fetchUserDetails() async {
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final email = user.email ?? '';
+      final databaseRef = FirebaseDatabase.instance.ref().child('userDetails');
+      final snapshot =
+          await databaseRef.orderByChild('email').equalTo(email).once();
+
+      if (snapshot.snapshot.children.isNotEmpty) {
+        final userData =
+            snapshot.snapshot.children.first.value as Map<dynamic, dynamic>;
+        setState(() {
+          _username = userData['email'] ?? 'Guest@gmail.com';
+          _fullName = userData['fullName'] ?? '';
+          _phone = userData['phone'] ?? '';
+          _role = userData['role'] ?? '';
+          _profilePictureUrl = userData['profilePictureUrl'] ?? '';
+        });
+      }
+    }
+  }
+
   void _logout(BuildContext context) {
     FirebaseAuth.instance.signOut();
     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
@@ -12,10 +51,6 @@ class NavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Retrieve the current user's email from Firebase Authentication
-    final User? user = FirebaseAuth.instance.currentUser;
-    final String username = user?.email ?? 'Guest@gmail.com';
-
     return Scaffold(
       backgroundColor: Colors.teal,
       appBar: AppBar(
@@ -85,21 +120,23 @@ class NavBar extends StatelessWidget {
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              _buildDrawerHeader(username),
+              _buildDrawerHeader(),
+              const Divider(color: Colors.cyan),
+
               _buildDrawerItem(
-                  context, Icons.favorite, 'Employee', '/viewEmployee'),
+                  context, Icons.edit, 'Your Detail Info', '/attachUserDetail'),
               _buildDrawerItem(
                   context, Icons.person, 'View Jobs', '/listOfJobsBasedOnUser'),
               _buildDrawerItem(
                   context, Icons.share, 'Image', null), // No action
               _buildDrawerItem(
-                  context, Icons.account_circle, 'Account', '/viewAccounts'),
-              const Divider(color: Colors.white),
+                  context, Icons.account_circle, 'Users', '/users'),
+              // const Divider(color: Colors.white),
               _buildDrawerItem(
                   context, Icons.settings, 'Post Jobs', '/postJob'),
-              _buildDrawerItem(
-                  context, Icons.description, 'User Registration', '/register'),
-              const Divider(color: Colors.white),
+              // _buildDrawerItem(context, Icons.description, 'Attach Your Detail',
+              //     '/attachUserDetail'),
+              const Divider(color: Colors.cyan),
               _buildDrawerItem(context, Icons.exit_to_app, 'Logout', null,
                   logout: true),
             ],
@@ -180,42 +217,54 @@ class NavBar extends StatelessWidget {
     );
   }
 
-  Widget _buildDrawerHeader(String username) {
-    return UserAccountsDrawerHeader(
-      accountName: const Text(
-        'Welcome',
-        style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      accountEmail: Text(
-        username,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      currentAccountPicture: CircleAvatar(
-        backgroundColor: Colors.white,
-        child: ClipOval(
-          child: Image.asset(
-            'assets/user.jfif',
-            fit: BoxFit.cover,
-            width: 90,
-            height: 90,
+  Widget _buildDrawerHeader() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CircleAvatar(
+            radius: 50,
+            backgroundColor: Colors.white,
+            child: ClipOval(
+              child: _profilePictureUrl.isNotEmpty
+                  ? Image.network(
+                      _profilePictureUrl,
+                      fit: BoxFit.cover,
+                      width: 100,
+                      height: 100,
+                    )
+                  : Icon(Icons.person, size: 70, color: Colors.grey[800]),
+            ),
           ),
-        ),
+          SizedBox(height: 10),
+          Text(
+            _fullName,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 5),
+          Text(
+            '$_username\n$_phone\nRole: $_role',
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
       decoration: BoxDecoration(
-        color: Colors.transparent,
-        image: DecorationImage(
-          fit: BoxFit.cover,
-          image: NetworkImage(
-              'https://oflutter.com/wp-content/uploads/2021/02/profile-bg3.jpg'),
+        gradient: LinearGradient(
+          colors: [Colors.teal.shade700, Colors.teal.shade400],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
       ),
     );
   }
@@ -225,9 +274,14 @@ class NavBar extends StatelessWidget {
       {bool logout = false}) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
-      title: Text(title,
-          style: const TextStyle(
-              color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+      title: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       onTap: () {
         if (logout) {
           _logout(context);
@@ -235,21 +289,6 @@ class NavBar extends StatelessWidget {
           Navigator.pushNamedAndRemoveUntil(context, route, (route) => false);
         }
       },
-      trailing: logout
-          ? null
-          : ClipOval(
-              child: Container(
-                color: Colors.grey,
-                width: 20,
-                height: 20,
-                child: Center(
-                  child: Text(
-                    '',
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ),
-              ),
-            ),
     );
   }
 
@@ -269,7 +308,7 @@ class NavBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
         ),
         elevation: 5,
-        backgroundColor: Colors.white30, // Transparent to apply gradient
+        backgroundColor: Colors.transparent, // Transparent to apply gradient
       ).copyWith(
         shadowColor: MaterialStateProperty.all(Colors.black.withOpacity(0.3)),
       ),

@@ -58,17 +58,16 @@ class _JobListState extends State<JobList> {
         _currentPosition = position;
       });
 
-      // Reverse geocoding to get the location name
       List<Placemark> placemarks =
           await placemarkFromCoordinates(position.latitude, position.longitude);
       if (placemarks.isNotEmpty) {
         final placemark = placemarks.first;
         setState(() {
           _currentLocationName =
-              '${placemark.locality}, ${placemark.administrativeArea}';
+              '${placemark.locality ?? 'Unknown City'}, ${placemark.administrativeArea ?? 'Unknown State'}, ${placemark.country ?? 'Unknown Country'}';
         });
       }
-      _fetchJobs(); // Fetch jobs after getting location
+      _fetchJobs();
     } catch (e) {
       print('Error getting current location: $e');
     }
@@ -80,7 +79,6 @@ class _JobListState extends State<JobList> {
       if (snapshot.snapshot.exists) {
         final jobs = Map<dynamic, dynamic>.from(snapshot.snapshot.value as Map);
 
-        // Filter jobs where status == 0
         final filteredJobs = jobs.values
             .where((job) => (job['status'] as int?) == 0)
             .toList()
@@ -88,7 +86,7 @@ class _JobListState extends State<JobList> {
 
         setState(() {
           _jobs = filteredJobs;
-          _filteredJobs = _jobs; // Initially, show all jobs
+          _filteredJobs = _jobs;
           if (_currentPosition != null) {
             _sortJobsByDistance();
           }
@@ -170,7 +168,7 @@ class _JobListState extends State<JobList> {
     if (date == null) return null;
     try {
       final parsedDate = DateTime.parse(date);
-      final formatter = DateFormat('yyyy-MM-dd'); // Change to desired format
+      final formatter = DateFormat('yyyy-MM-dd');
       return formatter.format(parsedDate);
     } catch (e) {
       print('Error formatting date: $e');
@@ -198,271 +196,267 @@ class _JobListState extends State<JobList> {
             );
           },
         ),
-        // actions: [
-        //   IconButton(
-        //     icon: Icon(Icons.person_add),
-        //     onPressed: () {
-        //       Navigator.push(
-        //         context,
-        //         MaterialPageRoute(
-        //             builder: (context) => EmployeeRegistrationScreen(
-        //                   email: '',
-        //                   jobId: '',
-        //                 )),
-        //       );
-        //     },
-        //   ),
-        // ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                labelText: 'Search by Location',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              currentPositionDisplay,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ),
-          _isLoading
-              ? Center(child: CircularProgressIndicator())
-              : _filteredJobs.isEmpty
-                  ? Center(child: Text('No jobs available'))
-                  : Expanded(
-                      child: ListView.separated(
-                        itemCount: _filteredJobs.length,
-                        separatorBuilder: (context, index) => Divider(
-                          color: const Color.fromARGB(255, 224, 224, 224),
-                        ),
-                        itemBuilder: (context, index) {
-                          final job = _filteredJobs[index];
-                          final distance = _calculateDistance(
-                              job['latitude'], job['longitude']);
-                          final formattedDistance = distance.toStringAsFixed(
-                              2); // Format distance to 2 decimal places
-                          final postDate = _formatDate(job['postDate']);
-                          final startDate = _formatDate(job['startDate']);
-                          final endDate = _formatDate(job['endDate']);
-                          final salary = job['salary']?.toString() ??
-                              '0'; // Convert to string if null
-                          final currency = job['currency'] ?? 'No currency';
-
-                          // Format the salary with commas
-                          final salaryFormatted = NumberFormat('#,###').format(
-                              int.tryParse(salary.replaceAll(
-                                      RegExp(r'[^\d]'), '')) ??
-                                  0);
-
-                          return Card(
-                            elevation: 4,
-                            margin: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
-                            child: ListTile(
-                              contentPadding: EdgeInsets.all(16),
-                              leading: CircleAvatar(
-                                backgroundColor: Colors.orange,
-                                child: Icon(
-                                  Icons.question_mark,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              title: Text(
-                                job['name'] ?? 'No Job Name',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(Icons.location_on,
-                                          color: Colors.blue),
-                                      SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          'Location: ${job['location'] ?? 'No Location'}',
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.attach_money,
-                                          color: Colors.blue),
-                                      SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          'Salary: $salaryFormatted $currency',
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.social_distance,
-                                          color: Colors.blue),
-                                      SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          'Distance: ${formattedDistance} km',
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.person, color: Colors.blue),
-                                      SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          'Gender: ${job['gender'] ?? 'No gender'}',
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.numbers, color: Colors.blue),
-                                      SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          'Required Number: ${job['numberRequired'] ?? 'No required'}',
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.description,
-                                          color: Colors.blue),
-                                      SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          'Description: ${job['description'] ?? 'No Description'}',
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  if (postDate != null && postDate.isNotEmpty)
-                                    Row(
-                                      children: [
-                                        Icon(Icons.calendar_today,
-                                            color: Colors.blue),
-                                        SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            'Post Date: $postDate',
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  if (startDate != null && startDate.isNotEmpty)
-                                    Row(
-                                      children: [
-                                        Icon(Icons.calendar_today,
-                                            color: Colors.blue),
-                                        SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            'Start Date: $startDate',
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  if (endDate != null && endDate.isNotEmpty)
-                                    Row(
-                                      children: [
-                                        Icon(Icons.calendar_today,
-                                            color: Colors.blue),
-                                        SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            'End Date: $endDate',
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                ],
-                              ),
-                              trailing: ElevatedButton(
-                                onPressed: () {
-                                  final userEmail =
-                                      job['userEmail'] as String? ??
-                                          'No Contact';
-                                  final jobId =
-                                      job['jobId'] as String? ?? 'No Job ID';
-
-                                  if (userEmail == 'No Contact') {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                              'No contact email available')),
-                                    );
-                                    return;
-                                  }
-
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          EmployeeRegistrationScreen(
-                                        email: userEmail,
-                                        jobId: jobId,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  foregroundColor: Colors.white,
-                                  backgroundColor: Colors.green,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 8), // Adjust padding if needed
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.check,
-                                        color: Colors.white), // Prefix icon
-                                    SizedBox(
-                                        width:
-                                            8), // Space between icon and text
-                                    Text(
-                                      'Apply',
-                                      style: TextStyle(
-                                          fontSize:
-                                              16), // Increase text size here
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+      body: OrientationBuilder(
+        builder: (context, orientation) {
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: 'Search by Location',
+                      border: OutlineInputBorder(),
                     ),
-        ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    currentPositionDisplay,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontSize:
+                              MediaQuery.of(context).size.width > 600 ? 18 : 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+                _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : _filteredJobs.isEmpty
+                        ? Center(child: Text('No jobs available'))
+                        : ListView.separated(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: _filteredJobs.length,
+                            separatorBuilder: (context, index) => Divider(
+                              color: const Color.fromARGB(255, 224, 224, 224),
+                            ),
+                            itemBuilder: (context, index) {
+                              final job = _filteredJobs[index];
+                              final distance = _calculateDistance(
+                                  job['latitude'], job['longitude']);
+                              final formattedDistance =
+                                  distance.toStringAsFixed(2);
+                              final postDate = _formatDate(job['postDate']);
+                              final startDate = _formatDate(job['startDate']);
+                              final endDate = _formatDate(job['endDate']);
+                              final salary = job['salary']?.toString() ?? '0';
+                              final currency = job['currency'] ?? 'No currency';
+                              final salaryFormatted = NumberFormat('#,###')
+                                  .format(int.tryParse(salary.replaceAll(
+                                          RegExp(r'[^\d]'), '')) ??
+                                      0);
+
+                              return Card(
+                                elevation: 4,
+                                margin: EdgeInsets.symmetric(
+                                    vertical: 8, horizontal: 12),
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.all(16),
+                                  leading: CircleAvatar(
+                                    backgroundColor: Colors.orange,
+                                    child: Icon(Icons.question_mark,
+                                        color: Colors.black),
+                                  ),
+                                  title: Text(
+                                    job['name'] ?? 'No Job Name',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: MediaQuery.of(context)
+                                                      .size
+                                                      .width >
+                                                  600
+                                              ? 20
+                                              : 18,
+                                        ),
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(Icons.home, color: Colors.blue),
+                                          SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              'Location: ${job['location'] ?? 'No Location'}',
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.attach_money,
+                                              color: Colors.blue),
+                                          SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              'Salary: $salaryFormatted $currency',
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.social_distance,
+                                              color: Colors.blue),
+                                          SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              'Distance: ${formattedDistance} km',
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.person,
+                                              color: Colors.blue),
+                                          SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              'Gender: ${job['gender'] ?? 'No gender'}',
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.numbers,
+                                              color: Colors.blue),
+                                          SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              'Required Number: ${job['numberRequired'] ?? 'No required'}',
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.description,
+                                              color: Colors.blue),
+                                          SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              'Description: ${job['description'] ?? 'No Description'}',
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      if (postDate != null &&
+                                          postDate.isNotEmpty)
+                                        Row(
+                                          children: [
+                                            Icon(Icons.calendar_today,
+                                                color: Colors.blue),
+                                            SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                'Post Date: $postDate',
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      if (startDate != null &&
+                                          startDate.isNotEmpty)
+                                        Row(
+                                          children: [
+                                            Icon(Icons.calendar_today,
+                                                color: Colors.blue),
+                                            SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                'Start Date: $startDate',
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      if (endDate != null && endDate.isNotEmpty)
+                                        Row(
+                                          children: [
+                                            Icon(Icons.calendar_today,
+                                                color: Colors.blue),
+                                            SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                'End Date: $endDate',
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                    ],
+                                  ),
+                                  trailing: ElevatedButton(
+                                    onPressed: () {
+                                      final userEmail =
+                                          job['userEmail'] as String? ??
+                                              'No Contact';
+                                      final jobId = job['jobId'] as String? ??
+                                          'No Job ID';
+
+                                      if (userEmail == 'No Contact') {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                              content: Text(
+                                                  'No contact email available')),
+                                        );
+                                        return;
+                                      }
+
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              EmployeeRegistrationScreen(
+                                            email: userEmail,
+                                            jobId: jobId,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      backgroundColor: Colors.green,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 8),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.check, color: Colors.white),
+                                        SizedBox(width: 8),
+                                        Text('Apply',
+                                            style: TextStyle(fontSize: 16)),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

@@ -5,22 +5,19 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-class EmployeeRegistrationScreen extends StatefulWidget {
+class JobSeekerRequestScreen extends StatefulWidget {
   final String email;
-  final String jobId;
 
-  EmployeeRegistrationScreen({required this.email, required this.jobId});
+  JobSeekerRequestScreen({required this.email});
 
   @override
   _EmployeeRegistrationScreenState createState() =>
       _EmployeeRegistrationScreenState();
 }
 
-class _EmployeeRegistrationScreenState
-    extends State<EmployeeRegistrationScreen> {
+class _EmployeeRegistrationScreenState extends State<JobSeekerRequestScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false; // Track loading state
-
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
@@ -178,7 +175,7 @@ class _EmployeeRegistrationScreenState
         'frontIdCard': frontIdCardUrl,
         'backIdCard': backIdCardUrl,
         'documentPath': documentUrl,
-        'jobId': widget.jobId,
+        'Status': 'request',
         'contactEmail': widget.email,
       };
 
@@ -231,7 +228,7 @@ class _EmployeeRegistrationScreenState
                   SizedBox(height: 20),
 
                   // Job ID
-                  _buildInfoSection('Job ID:', widget.jobId),
+                  //  _buildInfoSection('Job ID:', widget.jobId),
                   SizedBox(height: 20),
 
                   // Profile Picture Upload
@@ -303,7 +300,7 @@ class _EmployeeRegistrationScreenState
                   // Resume Field
                   _buildTextField(
                     controller: _resumeController,
-                    label: 'Resume (Link or Description)',
+                    label: 'Descrip require job,salary...',
                     icon: Icons.description,
                   ),
                   SizedBox(height: 20),

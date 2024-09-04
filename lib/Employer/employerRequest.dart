@@ -1,5 +1,4 @@
 import 'package:connectivity_plus/connectivity_plus.dart'; // Import connectivity package
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import services for input formatting
@@ -10,12 +9,14 @@ import 'package:intl/intl.dart'; // Import intl package for DateFormat
 
 // Ensure you have your CurrencyInputFormatter class available here
 
-class JobForm extends StatefulWidget {
+class JobFormRequest extends StatefulWidget {
+  final String email;
+  JobFormRequest({required this.email});
   @override
   _JobFormState createState() => _JobFormState();
 }
 
-class _JobFormState extends State<JobForm> {
+class _JobFormState extends State<JobFormRequest> {  
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _salaryController = TextEditingController();
@@ -38,22 +39,10 @@ class _JobFormState extends State<JobForm> {
   @override
   void initState() {
     super.initState();
-    _getUserId();
+    // _getUserId();
     _getCurrentLocation();
   }
 
-  Future<void> _getUserId() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      setState(() {
-        userEmail = user.email!;
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('User not logged in.')),
-      );
-    }
-  }
 
   Future<void> _getCurrentLocation() async {
     try {
@@ -97,6 +86,7 @@ class _JobFormState extends State<JobForm> {
   }
 
   Future<void> _submitJob() async {
+    print("email:" + widget.email);
     setState(() {
       _isLoading = true; // Start loading
     });
@@ -121,7 +111,7 @@ class _JobFormState extends State<JobForm> {
 
       final job = Job(
         jobId: jobId!,
-        userEmail: userEmail,
+        userEmail: widget.email,
         name: _nameController.text,
         salary: double.parse(_salaryController.text.replaceAll(',', '')),
         currency: _selectedCurrency,
@@ -213,7 +203,7 @@ class _JobFormState extends State<JobForm> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushNamedAndRemoveUntil(
-                context, '/listOfJobsBasedOnUser', (route) => false);
+                context, '/login', (route) => false);
           },
         ),
       ),
