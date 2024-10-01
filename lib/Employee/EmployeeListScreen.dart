@@ -68,7 +68,7 @@ class _EmployeeListScreenState extends State<EmployeeListScreen>
           final employeeId = entry.key as String;
 
           // Check if status is null
-          if (employee['status'] == null) {
+          if (employee['status'] == null || employee['status'] == '0') {
             employeeKeys.add(employeeId);
 
             if (jobId != null) {

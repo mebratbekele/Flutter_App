@@ -14,15 +14,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // text controllers for fields
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
-  // field for authenticating form state
   final _formField = GlobalKey<FormState>();
   final _formFieldPassword = GlobalKey<FormState>();
-
-  // boolean to toggle password visibility
   late bool _passwordVisible;
 
   @override
@@ -38,7 +33,6 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  // Error message to user
   void showErrorMessage(String message) {
     showDialog(
       context: context,
@@ -52,47 +46,33 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // sign in with email
   Future<void> signInWithEmail() async {
-    if (!_formField.currentState!.validate()) {
-      return;
-    }
-    if (!_formFieldPassword.currentState!.validate()) {
-      return;
-    }
+    if (!_formField.currentState!.validate()) return;
+    if (!_formFieldPassword.currentState!.validate()) return;
 
-    // show loading circle
     showDialog(
-        context: context,
-        builder: (context) {
-          return const Center(child: CircularProgressIndicator());
-        });
+      context: context,
+      builder: (context) {
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
 
     try {
-      var userCredential =
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
-      // var storage;
-      // await storage.write(key: 'authToken', value: userCredential.credential);
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
-      // show error message
       if (e.code == 'wrong-password') {
         showErrorMessage("Incorrect password\nPlease try again");
-      }
-      if (e.code == 'user-not-found') {
+      } else if (e.code == 'user-not-found') {
         showErrorMessage("User not found\nPlease try again");
-      }
-      if (e.code == 'too-many-requests') {
-        showErrorMessage(
-            "You have attempted to login too many times\nPlease try again later");
-      }
-      if (e.code == 'user-disabled') {
-        showErrorMessage(
-            "This account has been disabled\nPlease contact support for assistance");
+      } else if (e.code == 'too-many-requests') {
+        showErrorMessage("Too many attempts\nPlease try again later");
+      } else if (e.code == 'user-disabled') {
+        showErrorMessage("This account is disabled\nContact support");
       }
     }
   }
@@ -126,7 +106,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  // email field
                   CustomTextField(
                     validator: (email) {
                       return email != null && !EmailValidator.validate(email)
@@ -137,13 +116,9 @@ class _LoginPageState extends State<LoginPage> {
                     hintText: "Email",
                     obscureText: false,
                     inputType: TextInputType.emailAddress,
-                    icon: const Icon(
-                      Icons.email,
-                      color: Colors.black,
-                    ),
+                    icon: const Icon(Icons.email, color: Colors.black),
                   ),
                   const SizedBox(height: 20),
-                  // password field
                   Form(
                     key: _formFieldPassword,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -163,16 +138,12 @@ class _LoginPageState extends State<LoginPage> {
                         obscureText: !_passwordVisible,
                         style: const TextStyle(fontSize: 20),
                         decoration: InputDecoration(
-                          prefixIcon: const Icon(
-                            Icons.password,
-                            color: Colors.black,
-                          ),
+                          prefixIcon:
+                              const Icon(Icons.password, color: Colors.black),
                           suffixIcon: IconButton(
-                            icon: Icon(
-                              _passwordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
+                            icon: Icon(_passwordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off),
                             color: Colors.black,
                             onPressed: () {
                               setState(() {
@@ -182,6 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.blueAccent),
                           ),
                           hintText: "Password",
                         ),
@@ -189,91 +161,97 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 50),
-                  // Sign in button
                   CustomButton(
                     onTap: signInWithEmail,
                     buttonName: "Sign in",
                     buttonColor: Colors.blue,
-                    buttonText: '', // or any color you prefer
+                    buttonText: 'Sign in',
                   ),
                   const SizedBox(height: 30),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Don\'t have an account? ',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: widget.showSignUpPage,
-                        child: const Text(
-                          'Sign Up now',
-                          style: TextStyle(
-                            color: Colors.redAccent,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                  const Divider(color: Colors.white),
+
+                  // Below Sign In Button
+                  _buildFooterLink(
+                    context,
+                    'Don\'t have an account? ',
+                    'Sign Up now',
+                    widget.showSignUpPage,
+                    Colors.redAccent,
                   ),
-                  const SizedBox(height: 40),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'You want to find job? ',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/listOfJobs', (route) => false);
-                        },
-                        child: const Text(
-                          'Please click here now',
-                          style: TextStyle(
-                            color: Colors.redAccent,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 20),
+                  _buildFooterLink(
+                    context,
+                    'You want to find a job? ',
+                    'Please click here now',
+                    () {
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, '/listOfJobs', (route) => false);
+                    },
+                    Colors.redAccent,
+
+
+                    
                   ),
-                  const SizedBox(height: 40),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'You want to Visit Brokers? ',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/users', (route) => false);
-                        },
-                        child: const Text(
-                          'Please click here now',
-                          style: TextStyle(
-                            color: Colors.orangeAccent,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 20),
+                  _buildFooterLink(
+                    context,
+                    'You want to Visit Brokers? ',
+                    'Please click here now',
+                    () {
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, '/users', (route) => false);
+                    },
+                    Colors.orangeAccent,
                   ),
+                  const SizedBox(height: 20),
+                  _buildFooterLink(
+                    context,
+                    'You want to Visit selling items? ',
+                    'Please click here now',
+                    () {
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, '/selling', (route) => false);
+                    },
+                    Colors.blue,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildFooterLink(
+                    context,
+                    'You want to Visit buying items? ',
+                    'Please click here now',
+                    () {
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, '/buying', (route) => false);
+                    },
+                    Colors.cyan,
+                  ),
+                  const Divider(color: Colors.white),
                 ],
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildFooterLink(BuildContext context, String message, String linkText,
+      VoidCallback onTap, Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          message,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        GestureDetector(
+          onTap: onTap,
+          child: Text(
+            linkText,
+            style: TextStyle(color: color, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
     );
   }
 }

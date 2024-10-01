@@ -175,7 +175,7 @@ class _EmployeeRegistrationScreenState extends State<JobSeekerRequestScreen> {
         'frontIdCard': frontIdCardUrl,
         'backIdCard': backIdCardUrl,
         'documentPath': documentUrl,
-        'Status': 'request',
+        'status': 'request',
         'contactEmail': widget.email,
       };
 
@@ -300,7 +300,7 @@ class _EmployeeRegistrationScreenState extends State<JobSeekerRequestScreen> {
                   // Resume Field
                   _buildTextField(
                     controller: _resumeController,
-                    label: 'Descrip require job,salary...',
+                    label: 'Require job,salary...',
                     icon: Icons.description,
                   ),
                   SizedBox(height: 20),

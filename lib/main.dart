@@ -12,11 +12,16 @@ import 'package:flutter_application_1/Employer/employerRequest.dart';
 import 'package:flutter_application_1/Home_page.dart';
 import 'package:flutter_application_1/attachUserDetailInfo.dart';
 import 'package:flutter_application_1/auth_page.dart';
+import 'package:flutter_application_1/buyer/view.dart';
 import 'package:flutter_application_1/firebase_optrions.dart';
+import 'package:flutter_application_1/job/link_jobseeker_with_employer.dart';
 import 'package:flutter_application_1/job/post.dart';
 import 'package:flutter_application_1/job/viewJob.dart';
 import 'package:flutter_application_1/job/view_jobs_based_on_location.dart';
+import 'package:flutter_application_1/link_seller_buyer.dart';
 import 'package:flutter_application_1/registration.dart';
+import 'package:flutter_application_1/seller/manage_seller_&_buyer_after_link.dart';
+import 'package:flutter_application_1/seller/view.dart';
 import 'package:flutter_application_1/userInfo.dart';
 
 Future<void> main() async {
@@ -58,8 +63,19 @@ class MyApp extends StatelessWidget {
             AuthGuard(child: EmployedListScreen()),
         "/listOfJobsBasedOnUser": (context) =>
             AuthGuard(child: JobListBasedOnLocation()),
+        "/linkJobseekerWithEmployer": (context) =>
+            AuthGuard(child: JobseekerLinkWithEmployerScreen()),
+        "/seller_buyer_after_link": (context) =>
+            AuthGuard(child: SellerBuyerAfterLinkDisplayScreen()),
+        "/linkSellerWithBuyer": (context) =>
+            AuthGuard(child: SellerBuyerLinkScreen()),
         "/attachUserDetail": (context) => AuthGuard(child: UserDetailForm()),
         "/users": (context) => UserInfoPage(),
+        "/selling": (context) => SellerDetailsScreen(),
+        "/buying": (context) => BuyerDetailsScreen(
+              currentLatitude: 0.0, // Placeholder, will not be used
+              currentLongitude: 0.0, // Placeholder, will not be used
+            ),
         "/login": (context) => const AuthPage(),
         "/home": (context) => const NavBar(),
       },

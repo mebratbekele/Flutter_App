@@ -125,15 +125,15 @@ class _NavBarState extends State<NavBar> {
 
               _buildDrawerItem(
                   context, Icons.edit, 'Your Detail Info', '/attachUserDetail'),
-              _buildDrawerItem(
-                  context, Icons.person, 'View Jobs', '/listOfJobsBasedOnUser'),
-              _buildDrawerItem(
-                  context, Icons.share, 'Image', null), // No action
-              _buildDrawerItem(
-                  context, Icons.account_circle, 'Users', '/users'),
-              // const Divider(color: Colors.white),
-              _buildDrawerItem(
-                  context, Icons.settings, 'Post Jobs', '/postJob'),
+              // _buildDrawerItem(
+              //     context, Icons.person, 'View Jobs', '/listOfJobsBasedOnUser'),
+              _buildDrawerItem(context, Icons.request_page, 'Request',
+                  '/linkJobseekerWithEmployer'), // No action
+              _buildDrawerItem(context, Icons.request_page,
+                  'Seller & Buyer Request', '/linkSellerWithBuyer'),
+              const Divider(color: Colors.white),
+              _buildDrawerItem(context, Icons.check, 'Seller & Buyer',
+                  '/seller_buyer_after_link'),
               // _buildDrawerItem(context, Icons.description, 'Attach Your Detail',
               //     '/attachUserDetail'),
               const Divider(color: Colors.cyan),

@@ -143,7 +143,7 @@ class _JobFormState extends State<JobFormRequest> {
           SnackBar(content: Text('Job posted successfully!')),
         );
         Navigator.pushNamedAndRemoveUntil(
-            context, '/listOfJobsBasedOnUser', (route) => false);
+            context, '/users', (route) => false);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error posting job')),

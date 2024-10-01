@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_application_1/Employee/employeeRequest.dart';
 import 'package:flutter_application_1/Employer/employerRequest.dart';
+import 'package:flutter_application_1/buyer/post.dart';
+import 'package:flutter_application_1/seller/post.dart';
 import 'package:geolocator/geolocator.dart';
 
 class UserInfoPage extends StatefulWidget {
@@ -207,6 +209,12 @@ class _UserInfoPageState extends State<UserInfoPage> {
           ),
         );
       } else if (_selectedCategory == "Seller") {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SellerForm(email: email),
+          ),
+        );
       } else if (_selectedCategory == "Job Seeker") {
         Navigator.push(
           context,
@@ -214,7 +222,14 @@ class _UserInfoPageState extends State<UserInfoPage> {
             builder: (context) => JobSeekerRequestScreen(email: email),
           ),
         );
-      } else if (_selectedCategory == "Buyer") {}
+      } else if (_selectedCategory == "Buyer") {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BuyerForm(email: email),
+          ),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please select Your Position')),
